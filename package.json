@@ -30,8 +30,5 @@
   "bugs": {
     "url": "https://github.com/UFOMelkor/textlint-rule-languagetool/issues"
   },
-  "homepage": "https://github.com/UFOMelkor/textlint-rule-languagetool",
-  "dependencies": {
-    "node-languagetool": "^0.4.1"
-  }
+  "homepage": "https://github.com/UFOMelkor/textlint-rule-languagetool"
 }

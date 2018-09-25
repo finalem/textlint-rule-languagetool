@@ -1,12 +1,11 @@
 "use strict";
 
 let defaultConfig = {
+    api: undefined,
     language: 'en-US',
     ignoredMessages: [],
     dictionary: [],
 };
-
-let lt = require('node-languagetool');
 
 class DocumentCounter {
     constructor() {
@@ -32,7 +31,7 @@ const documentCounter = new DocumentCounter();
  * @param {RuleContext} context
  * @param {object} config
  */
-export default function (context, config = defaultConfig) {
+export default function(context, config = defaultConfig) {
     if (typeof(config) === 'boolean') {
         if (! config) {
             return;
@@ -42,9 +41,11 @@ export default function (context, config = defaultConfig) {
         config = Object.assign({}, defaultConfig, config);
     }
 
+    const lt = require('./languagetool')(config);
+
     const errorRegExps = config.ignoredMessages.map(message => new RegExp(message));
 
-    let filterOutError = function (match, text, matchedText) {
+    let filterOutError = function(match, text, matchedText) {
         if (match.ruleIssueType === 'misspelling' && config.dictionary.indexOf(matchedText) > -1) {
             return true;
         }
@@ -56,7 +57,7 @@ export default function (context, config = defaultConfig) {
         return false;
     };
 
-    let addErrors = function (res, text, node) {
+    let addErrors = function(res, text, node) {
         if (! res || ! res.hasOwnProperty('matches')) {
             return;
         }
@@ -101,13 +102,13 @@ export default function (context, config = defaultConfig) {
             }
 
             if (! text.match(/\s+|\s+(.*)/)) {
-                promiseQueue.push(lt.check(text, config.language).then(res => addErrors(res, text, node)))
+                promiseQueue.push(lt.check(text, config.language).then(res => addErrors(res, text, node)));
                 return;
             }
 
             text.split('|').map(part => part.trim()).filter(part => part.length > 0).forEach(part => {
                 promiseQueue.push(lt.check(part, config.language).then(res => addErrors(res, part, node)));
             });
-        }
+        },
     };
 }
